@@ -2,22 +2,24 @@ from __future__ import print_function
 
 import os
 import numpy as np
+from medpy.io import load
 
 import cv2
 
 data_path = 'raw/'
 
-image_rows = 420
-image_cols = 580
+image_rows = 512
+image_cols = 512
+image_z = 399
 
 
 def create_train_data():
-    train_data_path = os.path.join(data_path, 'train')
+    train_data_path = os.path.join(data_path, 'train/')
     images = os.listdir(train_data_path)
     total = len(images) / 2
 
-    imgs = np.ndarray((total, 1, image_rows, image_cols), dtype=np.uint8)
-    imgs_mask = np.ndarray((total, 1, image_rows, image_cols), dtype=np.uint8)
+    imgs = np.ndarray((total, 1, image_rows, image_cols, image_z), dtype=np.uint8)
+    imgs_mask = np.ndarray((total, 1, image_rows, image_cols, image_z), dtype=np.uint8)
 
     i = 0
     print('-'*30)
@@ -26,9 +28,9 @@ def create_train_data():
     for image_name in images:
         if 'mask' in image_name:
             continue
-        image_mask_name = image_name.split('.')[0] + '_mask.tif'
-        img = cv2.imread(os.path.join(train_data_path, image_name), cv2.IMREAD_GRAYSCALE)
-        img_mask = cv2.imread(os.path.join(train_data_path, image_mask_name), cv2.IMREAD_GRAYSCALE)
+        image_mask_name = image_name.split('.')[0] + '_mask.nii.gz'
+        img, img_header = load(os.path.join(train_data_path+image_name))
+        img_mask, img_mask_header = load(os.path.join(train_data_path+image_mask_name))
 
         img = np.array([img])
         img_mask = np.array([img_mask])
@@ -65,7 +67,9 @@ def create_test_data():
     print('Creating test images...')
     print('-'*30)
     for image_name in images:
-        img_id = int(image_name.split('.')[0])
+        img_id = image_name.split('.')[0]
+
+        img_id = int(img_id.split('_')[0]+img_id.split('_')[1])
         img = cv2.imread(os.path.join(train_data_path, image_name), cv2.IMREAD_GRAYSCALE)
 
         img = np.array([img])

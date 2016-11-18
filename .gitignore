@@ -1,4 +1,6 @@
+raw/
 *.pyc
 *.npy
 *.csv
 *.hdf5
+.DS_Store
