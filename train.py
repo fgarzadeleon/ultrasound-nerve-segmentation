@@ -9,12 +9,13 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as K
 
 from data import load_train_data, load_test_data
+import recrop as recrop
 
 K.set_image_dim_ordering('th')  # Theano dimension ordering in this code
 
-img_rows = 100
-img_cols = 100
-img_z = 60
+img_rows = 64
+img_cols = 64
+img_z = 64
 
 smooth = 1.
 
@@ -77,9 +78,10 @@ def get_unet():
 
 
 def preprocess(imgs):
-    imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)
+    imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], imgs.shape[2], img_rows, img_cols, img_z), dtype=np.uint8)
     for i in range(imgs.shape[0]):
-        imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows), interpolation=cv2.INTER_CUBIC)
+        imgs_p[i, 0] = recrop.resize3D(imgs[i,0], [img_cols, img_rows, img_z])
+        # imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows, img_z), interpolation=cv2.INTER_CUBIC)
     return imgs_p
 
 

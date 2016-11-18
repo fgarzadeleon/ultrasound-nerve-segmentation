@@ -59,7 +59,7 @@ def create_test_data():
     images = os.listdir(train_data_path)
     total = len(images)
 
-    imgs = np.ndarray((total, 1, image_rows, image_cols), dtype=np.uint8)
+    imgs = np.ndarray((total, 1, image_rows, image_cols, image_z), dtype=np.uint8)
     imgs_id = np.ndarray((total, ), dtype=np.int32)
 
     i = 0
@@ -67,10 +67,11 @@ def create_test_data():
     print('Creating test images...')
     print('-'*30)
     for image_name in images:
-        img_id = image_name.split('.')[0]
+        img_id = image_name.split('series')[1]
+        img_id = img_id.split('_')[0]
 
-        img_id = int(img_id.split('_')[0]+img_id.split('_')[1])
-        img = cv2.imread(os.path.join(train_data_path, image_name), cv2.IMREAD_GRAYSCALE)
+        img_id = int(img_id.split('.')[0])
+        img, img_header = load(os.path.join(train_data_path, image_name))
 
         img = np.array([img])
 
