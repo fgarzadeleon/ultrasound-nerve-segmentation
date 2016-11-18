@@ -33,7 +33,7 @@ def dice_coef_loss(y_true, y_pred):
 
 def get_unet():
     inputs = Input((1, img_rows, img_cols, img_z))
-    conv1 = Convolution3D(32, 3, 3, 3, activation='relu', border_mode='same')(inputs)
+    conv1 = Convolution3D(32, 3, 3, 3, activation='relu', border_mode='same', input_shape=(3, img_rows, img_cols, img_z))(inputs)
     conv1 = Convolution3D(32, 3, 3, 3, activation='relu', border_mode='same')(conv1)
     pool1 = MaxPooling3D(pool_size=(2, 2, 2))(conv1)
 
@@ -78,10 +78,12 @@ def get_unet():
 
 
 def preprocess(imgs):
-    imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], imgs.shape[2], img_rows, img_cols, img_z), dtype=np.uint8)
+    print("Shape before preprocessing")
+    print(imgs.shape)
+    imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols, img_z), dtype=np.uint8)
     for i in range(imgs.shape[0]):
         imgs_p[i, 0] = recrop.resize3D(imgs[i,0], [img_cols, img_rows, img_z])
-        # imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows, img_z), interpolation=cv2.INTER_CUBIC)
+        # imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows), interpolation=cv2.INTER_CUBIC)
     return imgs_p
 
 
@@ -113,7 +115,8 @@ def train_and_predict():
     print('-'*30)
     print('Fitting model...')
     print('-'*30)
-    model.fit(imgs_train, imgs_mask_train, batch_size=32, nb_epoch=20, verbose=1, shuffle=True,
+    print(imgs_train.shape)
+    model.fit(imgs_train, imgs_mask_train, batch_size=1, nb_epoch=20, verbose=1, shuffle=True,
               callbacks=[model_checkpoint])
 
     print('-'*30)
